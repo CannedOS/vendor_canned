@@ -169,5 +169,8 @@ PRODUCT_DEXPREOPT_SPEED_APPS += \
 PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += vendor/canned/overlay
 DEVICE_PACKAGE_OVERLAYS += vendor/canned/overlay/common
 
+# Plugins
+include packages/apps/Plugins/plugins.mk
+
 -include $(WORKSPACE)/build_env/image-auto-bits.mk
 -include vendor/canned/config/partner_gms.mk
