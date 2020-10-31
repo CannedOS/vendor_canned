@@ -13,8 +13,6 @@ endif
 
 # AOSP packages
 PRODUCT_PACKAGES += \
-    Email \
-    ExactCalculator \
     Exchange2
 
 ifneq ($(TARGET_EXCLUDES_AUDIOFX),true)
