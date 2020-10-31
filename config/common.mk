@@ -88,6 +88,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     SimpleDeviceConfig
 
+# Themes
+PRODUCT_PACKAGES += \
+    ThemePicker
+    
 # Extra tools in Lineage
 PRODUCT_PACKAGES += \
     7z \
