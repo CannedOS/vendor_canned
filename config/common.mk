@@ -92,6 +92,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     ThemePicker
     
+# SystemUI plugins
+PRODUCT_PACKAGES += \
+    QuickAccessWallet
+    
 # Extra tools in Lineage
 PRODUCT_PACKAGES += \
     7z \
