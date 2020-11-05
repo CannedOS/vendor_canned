@@ -20,8 +20,8 @@ endif
 
 # Backup Tool
 PRODUCT_COPY_FILES += \
-    vendor/canned/prebuilt/common/bin/backuptool.sh:install/bin/backuptool.sh \
-    vendor/canned/prebuilt/common/bin/backuptool.functions:install/bin/backuptool.functions \
+    vendor/canned/prebuilt/common/bin/backuptool.sh:$(TARGET_COPY_OUT_SYSTEM)/install/bin/backuptool.sh \
+    vendor/canned/prebuilt/common/bin/backuptool.functions:$(TARGET_COPY_OUT_SYSTEM)/install/bin/backuptool.functions \
     vendor/canned/prebuilt/common/bin/50-canned.sh:$(TARGET_COPY_OUT_SYSTEM)/addon.d/50-canned.sh
 
 ifneq ($(AB_OTA_PARTITIONS),)
