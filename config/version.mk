@@ -16,7 +16,7 @@ ANDROID_VERSION := 11.0
 CANNED_VERSION := v1.0
 
 CANNED_BUILD_TYPE ?= UNOFFICIAL
-CANNED_BUILD_DATE := $(shell date +%Y%m%d)
+CANNED_BUILD_DATE := $(shell date +%Y%m%d-%H%M)
 TARGET_PRODUCT_SHORT := $(subst canned_,,$(CANNED_BUILD))
 
 # ZIP TYPE
