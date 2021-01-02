@@ -184,8 +184,5 @@ DEVICE_PACKAGE_OVERLAYS += vendor/canned/overlay/common
 #Versioning
 -include vendor/canned/config/version.mk
 
-# Gapps
--include vendor/canned/config/gapps.mk
-
 # Bootanimation
 -include vendor/canned/bootanimation/bootanimation.mk
