@@ -1,16 +1,13 @@
-function __print_lineage_functions_help() {
+function __print_canned_functions_help() {
 cat <<EOF
-Additional LineageOS functions:
+Additional CannedOS functions:
 - cout:            Changes directory to out.
-- mmp:             Builds all of the modules in the current directory and pushes them to the device.
-- mmap:            Builds all of the modules in the current directory and its dependencies, then pushes the package to the device.
-- mmmp:            Builds all of the modules in the supplied directories and pushes them to the device.
-- lineagegerrit:   A Git wrapper that fetches/pushes patch from/to LineageOS Gerrit Review.
-- lineagerebase:   Rebase a Gerrit change and push it again.
-- lineageremote:   Add git remote for LineageOS Gerrit Review.
+- cannedgerrit:   A Git wrapper that fetches/pushes patch from/to cannedOS Gerrit Review.
+- cannedrebase:   Rebase a Gerrit change and push it again.
+- cannedremote:   Add git remote for cannedOS Gerrit Review.
 - aospremote:      Add git remote for matching AOSP repository.
 - cafremote:       Add git remote for matching CodeAurora repository.
-- githubremote:    Add git remote for LineageOS Github.
+- githubremote:    Add git remote for cannedOS Github.
 - mka:             Builds using SCHED_BATCH on all processors.
 - mkap:            Builds the module(s) using mka and pushes them to the device.
 - cmka:            Cleans and builds using mka.
@@ -56,7 +53,7 @@ function brunch()
 {
     breakfast $*
     if [ $? -eq 0 ]; then
-        mka bacon
+        mka canned
     else
         echo "No such item in brunch menu. Try 'breakfast'"
         return 1
@@ -68,6 +65,15 @@ function breakfast()
 {
     target=$1
     local variant=$2
+    CANNED_DEVICES_ONLY="true"
+    unset LUNCH_MENU_CHOICES
+    add_lunch_combo full-eng
+    for f in `/bin/ls vendor/canned/vendorsetup.sh 2> /dev/null`
+        do
+            echo "including $f"
+            . $f
+        done
+    unset f
 
     if [ $# -eq 0 ]; then
         # No arguments, so let's have the full menu
@@ -83,45 +89,13 @@ function breakfast()
                 variant="userdebug"
             fi
 
-            lunch lineage_$target-$variant
+            lunch canned_$target-$variant
         fi
     fi
     return $?
 }
 
 alias bib=breakfast
-
-function eat()
-{
-    if [ "$OUT" ] ; then
-        ZIPPATH=`ls -tr "$OUT"/lineage-*.zip | tail -1`
-        if [ ! -f $ZIPPATH ] ; then
-            echo "Nothing to eat"
-            return 1
-        fi
-        echo "Waiting for device..."
-        adb wait-for-device-recovery
-        echo "Found device"
-        if (adb shell getprop ro.lineage.device | grep -q "$LINEAGE_BUILD"); then
-            echo "Rebooting to sideload for install"
-            adb reboot sideload-auto-reboot
-            adb wait-for-sideload
-            adb sideload $ZIPPATH
-        else
-            echo "The connected device does not appear to be $LINEAGE_BUILD, run away!"
-        fi
-        return $?
-    else
-        echo "Nothing to eat"
-        return 1
-    fi
-}
-
-function omnom()
-{
-    brunch $*
-    eat
-}
 
 function cout()
 {
@@ -340,81 +314,6 @@ function githubremote()
     echo "Remote 'github' created"
 }
 
-function installboot()
-{
-    if [ ! -e "$OUT/recovery/root/system/etc/recovery.fstab" ];
-    then
-        echo "No recovery.fstab found. Build recovery first."
-        return 1
-    fi
-    if [ ! -e "$OUT/boot.img" ];
-    then
-        echo "No boot.img found. Run make bootimage first."
-        return 1
-    fi
-    PARTITION=`grep "^\/boot" $OUT/recovery/root/system/etc/recovery.fstab | awk {'print $3'}`
-    if [ -z "$PARTITION" ];
-    then
-        # Try for RECOVERY_FSTAB_VERSION = 2
-        PARTITION=`grep "[[:space:]]\/boot[[:space:]]" $OUT/recovery/root/system/etc/recovery.fstab | awk {'print $1'}`
-        PARTITION_TYPE=`grep "[[:space:]]\/boot[[:space:]]" $OUT/recovery/root/system/etc/recovery.fstab | awk {'print $3'}`
-        if [ -z "$PARTITION" ];
-        then
-            echo "Unable to determine boot partition."
-            return 1
-        fi
-    fi
-    adb wait-for-device-recovery
-    adb root
-    adb wait-for-device-recovery
-    if (adb shell getprop ro.lineage.device | grep -q "$LINEAGE_BUILD");
-    then
-        adb push $OUT/boot.img /cache/
-        adb shell dd if=/cache/boot.img of=$PARTITION
-        adb shell rm -rf /cache/boot.img
-        echo "Installation complete."
-    else
-        echo "The connected device does not appear to be $LINEAGE_BUILD, run away!"
-    fi
-}
-
-function installrecovery()
-{
-    if [ ! -e "$OUT/recovery/root/system/etc/recovery.fstab" ];
-    then
-        echo "No recovery.fstab found. Build recovery first."
-        return 1
-    fi
-    if [ ! -e "$OUT/recovery.img" ];
-    then
-        echo "No recovery.img found. Run make recoveryimage first."
-        return 1
-    fi
-    PARTITION=`grep "^\/recovery" $OUT/recovery/root/system/etc/recovery.fstab | awk {'print $3'}`
-    if [ -z "$PARTITION" ];
-    then
-        # Try for RECOVERY_FSTAB_VERSION = 2
-        PARTITION=`grep "[[:space:]]\/recovery[[:space:]]" $OUT/recovery/root/system/etc/recovery.fstab | awk {'print $1'}`
-        PARTITION_TYPE=`grep "[[:space:]]\/recovery[[:space:]]" $OUT/recovery/root/system/etc/recovery.fstab | awk {'print $3'}`
-        if [ -z "$PARTITION" ];
-        then
-            echo "Unable to determine recovery partition."
-            return 1
-        fi
-    fi
-    adb wait-for-device-recovery
-    adb root
-    adb wait-for-device-recovery
-    if (adb shell getprop ro.lineage.device | grep -q "$LINEAGE_BUILD");
-    then
-        adb push $OUT/recovery.img /cache/
-        adb shell dd if=/cache/recovery.img of=$PARTITION
-        adb shell rm -rf /cache/recovery.img
-        echo "Installation complete."
-    else
-        echo "The connected device does not appear to be $LINEAGE_BUILD, run away!"
-    fi
-}
 
 function makerecipe() {
     if [ -z "$1" ]
@@ -725,7 +624,7 @@ function cmka() {
     if [ ! -z "$1" ]; then
         for i in "$@"; do
             case $i in
-                bacon|otapackage|systemimage)
+                canned|otapackage|systemimage)
                     mka installclean
                     mka $i
                     ;;
@@ -741,6 +640,26 @@ function cmka() {
     fi
 }
 
+function fixup_common_out_dir() {
+    common_out_dir=$(get_build_var OUT_DIR)/target/common
+    target_device=$(get_build_var TARGET_DEVICE)
+        common_target_out=common-${target_device}
+    if [ ! -z $CANNED_FIXUP_COMMON_OUT ]; then
+        if [ -d ${common_out_dir} ] && [ ! -L ${common_out_dir} ]; then
+            mv ${common_out_dir} ${common_out_dir}-${target_device}
+            ln -s ${common_target_out} ${common_out_dir}
+        else
+            [ -L ${common_out_dir} ] && rm ${common_out_dir}
+            mkdir -p ${common_out_dir}-${target_device}
+            ln -s ${common_target_out} ${common_out_dir}
+        fi
+    else
+        [ -L ${common_out_dir} ] && rm ${common_out_dir}
+        mkdir -p ${common_out_dir}
+    fi
+}
+
+
 function repolastsync() {
     RLSPATH="$ANDROID_BUILD_TOP/.repo/.repo_fetchtimes.json"
     RLSLOCAL=$(date -d "$(stat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
@@ -749,7 +668,7 @@ function repolastsync() {
 }
 
 function reposync() {
-    repo sync -j 4 "$@"
+    repo sync -c -f --force-sync --no-tags --no-clone-bundle -j$(nproc --all) --optimized-fetch --prune "$@"
 }
 
 function repodiff() {
@@ -764,7 +683,8 @@ function repodiff() {
 # Return success if adb is up and not in recovery
 function _adb_connected {
     {
-        if [[ "$(adb get-state)" == device ]]
+        if [[ "$(adb get-state)" == device &&
+              "$(adb shell 'test -e /sbin/recovery; echo $?')" != 0 ]]
         then
             return 0
         fi
@@ -779,41 +699,12 @@ function dopush()
     local func=$1
     shift
 
-    adb start-server # Prevent unexpected starting server message from adb get-state in the next line
-    if ! _adb_connected; then
-        echo "No device is online. Waiting for one..."
-        echo "Please connect USB and/or enable USB debugging"
-        until _adb_connected; do
-            sleep 1
-        done
-        echo "Device Found."
-    fi
-
-    if (adb shell getprop ro.lineage.device | grep -q "$LINEAGE_BUILD") || [ "$FORCE_PUSH" = "true" ];
-    then
-    # retrieve IP and PORT info if we're using a TCP connection
-    TCPIPPORT=$(adb devices \
-        | egrep '^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9]):[0-9]+[^0-9]+' \
-        | head -1 | awk '{print $1}')
-    adb root &> /dev/null
-    sleep 0.3
-    if [ -n "$TCPIPPORT" ]
-    then
-        # adb root just killed our connection
-        # so reconnect...
-        adb connect "$TCPIPPORT"
-    fi
-    adb wait-for-device &> /dev/null
-    adb remount &> /dev/null
-
-    mkdir -p $OUT
+        mkdir -p $OUT
     ($func $*|tee $OUT/.log;return ${PIPESTATUS[0]})
     ret=$?;
     if [ $ret -ne 0 ]; then
         rm -f $OUT/.log;return $ret
     fi
-
-    is_gnu_sed=`sed --version | head -1 | grep -c GNU`
 
     # Install: <file>
     if [ $is_gnu_sed -gt 0 ]; then
@@ -912,33 +803,19 @@ EOF
     fi
 }
 
-alias mmp='dopush mm'
-alias mmmp='dopush mmm'
-alias mmap='dopush mma'
-alias mmmap='dopush mmma'
-alias mkap='dopush mka'
-alias cmkap='dopush cmka'
-
 function repopick() {
     T=$(gettop)
-    $T/vendor/lineage/build/tools/repopick.py $@
+    $T/vendor/canned/build/tools/repopick.py $@
 }
 
-function fixup_common_out_dir() {
-    common_out_dir=$(get_build_var OUT_DIR)/target/common
-    target_device=$(get_build_var TARGET_DEVICE)
-    common_target_out=common-${target_device}
-    if [ ! -z $LINEAGE_FIXUP_COMMON_OUT ]; then
-        if [ -d ${common_out_dir} ] && [ ! -L ${common_out_dir} ]; then
-            mv ${common_out_dir} ${common_out_dir}-${target_device}
-            ln -s ${common_target_out} ${common_out_dir}
-        else
-            [ -L ${common_out_dir} ] && rm ${common_out_dir}
-            mkdir -p ${common_out_dir}-${target_device}
-            ln -s ${common_target_out} ${common_out_dir}
-        fi
+# check and set ccache path on envsetup
+if [ -z ${CCACHE_EXEC} ]; then
+    ccache_path=$(which ccache)
+    if [ ! -z "$ccache_path" ]; then
+        export CCACHE_EXEC="$ccache_path"
+        echo "ccache found and CCACHE_EXEC has been set to : $ccache_path"
     else
-        [ -L ${common_out_dir} ] && rm ${common_out_dir}
-        mkdir -p ${common_out_dir}
-    fi
-}
+        echo "ccache not found/installed!"
+
+# Allow GCC 4.9
+export TEMPORARY_DISABLE_PATH_RESTRICTIONS=true

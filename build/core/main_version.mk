@@ -6,20 +6,20 @@ endif
 
 # LineageOS System Version
 ADDITIONAL_BUILD_PROPERTIES += \
-    ro.lineage.version=$(LINEAGE_VERSION) \
-    ro.lineage.releasetype=$(LINEAGE_BUILDTYPE) \
-    ro.lineage.build.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
-    ro.modversion=$(LINEAGE_VERSION) \
-    ro.lineagelegal.url=https://lineageos.org/legal
+    ro.canned.version=$(CANNED_VERSION) \
+    ro.canned.releasetype=$(CANNED_BUILDTYPE) \
+    ro.canned.build.version=$(PRODUCT_VERSION_MAJOR).$(PRODUCT_VERSION_MINOR) \
+    ro.modversion=$(CANNED_VERSION) \
+    ro.cannedlegal.url=https://lineageos.org/legal
 
 # LineageOS Platform Display Version
 ADDITIONAL_BUILD_PROPERTIES += \
-    ro.lineage.display.version=$(LINEAGE_DISPLAY_VERSION)
+    ro.canned.display.version=$(CANNED_DISPLAY_VERSION)
 
 # LineageOS Platform SDK Version
 ADDITIONAL_BUILD_PROPERTIES += \
-    ro.lineage.build.version.plat.sdk=$(LINEAGE_PLATFORM_SDK_VERSION)
+    ro.canned.build.version.plat.sdk=$(CANNED_PLATFORM_SDK_VERSION)
 
 # LineageOS Platform Internal Version
 ADDITIONAL_BUILD_PROPERTIES += \
-    ro.lineage.build.version.plat.rev=$(LINEAGE_PLATFORM_REV)
+    ro.canned.build.version.plat.rev=$(CANNED_PLATFORM_REV)

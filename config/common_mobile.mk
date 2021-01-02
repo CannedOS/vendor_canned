@@ -1,5 +1,5 @@
 # Inherit common mobile Lineage stuff
-$(call inherit-product, vendor/lineage/config/common.mk)
+$(call inherit-product, vendor/canned/config/common.mk)
 
 # Default notification/alarm sounds
 PRODUCT_PRODUCT_PROPERTIES += \
@@ -16,15 +16,6 @@ PRODUCT_PACKAGES += \
     Email \
     ExactCalculator \
     Exchange2
-
-# Lineage packages
-PRODUCT_PACKAGES += \
-    Backgrounds \
-    Eleven \
-    Etar \
-    Jelly \
-    Profiles \
-    Seedvault
 
 ifneq ($(TARGET_EXCLUDES_AUDIOFX),true)
 PRODUCT_PACKAGES += \
@@ -44,20 +35,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_DEXPREOPT_SPEED_APPS += \
     TrebuchetQuickStep
 endif
-
-# Accents
-PRODUCT_PACKAGES += \
-    LineageBlackTheme \
-    LineageBlackAccent \
-    LineageBlueAccent \
-    LineageBrownAccent \
-    LineageCyanAccent \
-    LineageGreenAccent \
-    LineageOrangeAccent \
-    LineagePinkAccent \
-    LineagePurpleAccent \
-    LineageRedAccent \
-    LineageYellowAccent
 
 # Charger
 PRODUCT_PACKAGES += \

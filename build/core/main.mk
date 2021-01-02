@@ -1,2 +1,2 @@
-# Include LineageOS versions
-include $(TOPDIR)vendor/lineage/build/core/main_version.mk
+# Include CannedOS versions
+include $(TOPDIR)vendor/canned/build/core/main_version.mk
