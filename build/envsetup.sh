@@ -1,22 +1,19 @@
+# CannedOS functions that extend build/envsetup.sh
 function __print_canned_functions_help() {
 cat <<EOF
 Additional CannedOS functions:
 - cout:            Changes directory to out.
-- cannedgerrit:   A Git wrapper that fetches/pushes patch from/to cannedOS Gerrit Review.
-- cannedrebase:   Rebase a Gerrit change and push it again.
-- cannedremote:   Add git remote for cannedOS Gerrit Review.
+- lineagegerrit:   A Git wrapper that fetches/pushes patch from/to LineageOS Gerrit Review.
+- lineagerebase:   Rebase a Gerrit change and push it again.
+- lineagereview:   Add git remote for LineageOS Gerrit Review.
 - aospremote:      Add git remote for matching AOSP repository.
 - cafremote:       Add git remote for matching CodeAurora repository.
-- githubremote:    Add git remote for cannedOS Github.
+- lineageremote:    Add git remote for LineageOS Github.
 - mka:             Builds using SCHED_BATCH on all processors.
-- mkap:            Builds the module(s) using mka and pushes them to the device.
-- cmka:            Cleans and builds using mka.
 - repodiff:        Diff 2 different branches or tags within the same repo
 - repolastsync:    Prints date and time of last repo sync.
 - reposync:        Parallel repo sync using ionice and SCHED_BATCH.
 - repopick:        Utility to fetch changes from Gerrit.
-- installboot:     Installs a boot.img to the connected device.
-- installrecovery: Installs a recovery.img to the connected device.
 EOF
 }
 
@@ -65,7 +62,7 @@ function breakfast()
 {
     target=$1
     local variant=$2
-    CANNED_DEVICES_ONLY="true"
+    CANNEDOS_DEVICES_ONLY="true"
     unset LUNCH_MENU_CHOICES
     add_lunch_combo full-eng
     for f in `/bin/ls vendor/canned/vendorsetup.sh 2> /dev/null`
@@ -84,7 +81,7 @@ function breakfast()
             # A buildtype was specified, assume a full device name
             lunch $target
         else
-            # This is probably just the Lineage model name
+            # This is probably just the CannedOS model name
             if [ -z "$variant" ]; then
                 variant="userdebug"
             fi
@@ -206,7 +203,7 @@ function dddclient()
    fi
 }
 
-function lineageremote()
+function lineagereview()
 {
     if ! git rev-parse --git-dir &> /dev/null
     then
@@ -293,14 +290,14 @@ function cafremote()
     echo "Remote 'caf' created"
 }
 
-function githubremote()
+function lineageremote()
 {
     if ! git rev-parse --git-dir &> /dev/null
     then
         echo ".git directory not found. Please run this from the root directory of the Android repository you wish to set up."
         return 1
     fi
-    git remote rm github 2> /dev/null
+    git remote rm lineage 2> /dev/null
     local REMOTE=$(git config --get remote.aosp.projectname)
 
     if [ -z "$REMOTE" ]
@@ -310,10 +307,9 @@ function githubremote()
 
     local PROJECT=$(echo $REMOTE | sed -e "s#platform/#android/#g; s#/#_#g")
 
-    git remote add github https://github.com/LineageOS/$PROJECT
-    echo "Remote 'github' created"
+    git remote add lineage https://github.com/LineageOS/$PROJECT
+    echo "Remote 'lineage' created"
 }
-
 
 function makerecipe() {
     if [ -z "$1" ]
@@ -327,7 +323,6 @@ function makerecipe() {
     cd ..
 
     repo forall -c '
-
     if [ "$REPO_REMOTE" = "github" ]
     then
         pwd
@@ -358,18 +353,14 @@ function lineagegerrit() {
                 cat <<EOF
 Usage:
     $FUNCNAME COMMAND [OPTIONS] [CHANGE-ID[/PATCH-SET]][{@|^|~|:}ARG] [-- ARGS]
-
 Commands:
     fetch   Just fetch the change as FETCH_HEAD
     help    Show this help, or for a specific command
     pull    Pull a change into current branch
     push    Push HEAD or a local branch to Gerrit for a specific branch
-
 Any other Git commands that support refname would work as:
     git fetch URL CHANGE && git COMMAND OPTIONS FETCH_HEAD{@|^|~|:}ARG -- ARGS
-
 See '$FUNCNAME help COMMAND' for more information on a specific command.
-
 Example:
     $FUNCNAME checkout -b topic 1234/5
 works as:
@@ -390,11 +381,9 @@ EOF
                 help) $FUNCNAME help ;;
                 fetch|pull) cat <<EOF
 usage: $FUNCNAME $1 [OPTIONS] CHANGE-ID[/PATCH-SET]
-
 works as:
     git $1 OPTIONS http://DOMAIN/p/PROJECT \\
       refs/changes/HASH/CHANGE-ID/{PATCH-SET|1}
-
 Example:
     $FUNCNAME $1 1234
 will $1 patch-set 1 of change 1234
@@ -402,11 +391,9 @@ EOF
                     ;;
                 push) cat <<EOF
 usage: $FUNCNAME push [OPTIONS] [LOCAL_BRANCH:]REMOTE_BRANCH
-
 works as:
     git push OPTIONS ssh://USER@DOMAIN:29418/PROJECT \\
       {LOCAL_BRANCH|HEAD}:refs/for/REMOTE_BRANCH
-
 Example:
     $FUNCNAME push fix6789:gingerbread
 will push local branch 'fix6789' to Gerrit for branch 'gingerbread'.
@@ -417,7 +404,6 @@ EOF
                     $FUNCNAME __cmg_err_not_supported $1 && return
                     cat <<EOF
 usage: $FUNCNAME $1 [OPTIONS] CHANGE-ID[/PATCH-SET][{@|^|~|:}ARG] [-- ARGS]
-
 works as:
     git fetch http://DOMAIN/p/PROJECT \\
       refs/changes/HASH/CHANGE-ID/{PATCH-SET|1} \\
@@ -615,11 +601,9 @@ function lineagerebase() {
     repo abandon tmprebase .
     cd $pwd
 }
-
 function mka() {
     m -j "$@"
 }
-
 function cmka() {
     if [ ! -z "$1" ]; then
         for i in "$@"; do
@@ -639,7 +623,6 @@ function cmka() {
         mka
     fi
 }
-
 function fixup_common_out_dir() {
     common_out_dir=$(get_build_var OUT_DIR)/target/common
     target_device=$(get_build_var TARGET_DEVICE)
@@ -658,19 +641,15 @@ function fixup_common_out_dir() {
         mkdir -p ${common_out_dir}
     fi
 }
-
-
 function repolastsync() {
     RLSPATH="$ANDROID_BUILD_TOP/.repo/.repo_fetchtimes.json"
     RLSLOCAL=$(date -d "$(stat -c %z $RLSPATH)" +"%e %b %Y, %T %Z")
     RLSUTC=$(date -d "$(stat -c %z $RLSPATH)" -u +"%e %b %Y, %T %Z")
     echo "Last repo sync: $RLSLOCAL / $RLSUTC"
 }
-
 function reposync() {
     repo sync -c -f --force-sync --no-tags --no-clone-bundle -j$(nproc --all) --optimized-fetch --prune "$@"
 }
-
 function repodiff() {
     if [ -z "$*" ]; then
         echo "Usage: repodiff <ref-from> [[ref-to] [--numstat]]"
@@ -679,7 +658,6 @@ function repodiff() {
     diffopts=$* repo forall -c \
       'echo "$REPO_PATH ($REPO_REMOTE)"; git diff ${diffopts} 2>/dev/null ;'
 }
-
 # Return success if adb is up and not in recovery
 function _adb_connected {
     {
@@ -689,125 +667,12 @@ function _adb_connected {
             return 0
         fi
     } 2>/dev/null
-
     return 1
 };
-
-# Credit for color strip sed: http://goo.gl/BoIcm
-function dopush()
-{
-    local func=$1
-    shift
-
-        mkdir -p $OUT
-    ($func $*|tee $OUT/.log;return ${PIPESTATUS[0]})
-    ret=$?;
-    if [ $ret -ne 0 ]; then
-        rm -f $OUT/.log;return $ret
-    fi
-
-    # Install: <file>
-    if [ $is_gnu_sed -gt 0 ]; then
-        LOC="$(cat $OUT/.log | sed -r -e 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' -e 's/^\[ {0,2}[0-9]{1,3}% [0-9]{1,6}\/[0-9]{1,6}\] +//' \
-            | grep '^Install: ' | cut -d ':' -f 2)"
-    else
-        LOC="$(cat $OUT/.log | sed -E "s/"$'\E'"\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" -E "s/^\[ {0,2}[0-9]{1,3}% [0-9]{1,6}\/[0-9]{1,6}\] +//" \
-            | grep '^Install: ' | cut -d ':' -f 2)"
-    fi
-
-    # Copy: <file>
-    if [ $is_gnu_sed -gt 0 ]; then
-        LOC="$LOC $(cat $OUT/.log | sed -r -e 's/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g' -e 's/^\[ {0,2}[0-9]{1,3}% [0-9]{1,6}\/[0-9]{1,6}\] +//' \
-            | grep '^Copy: ' | cut -d ':' -f 2)"
-    else
-        LOC="$LOC $(cat $OUT/.log | sed -E "s/"$'\E'"\[([0-9]{1,3}((;[0-9]{1,3})*)?)?[m|K]//g" -E 's/^\[ {0,2}[0-9]{1,3}% [0-9]{1,6}\/[0-9]{1,6}\] +//' \
-            | grep '^Copy: ' | cut -d ':' -f 2)"
-    fi
-
-    # If any files are going to /data, push an octal file permissions reader to device
-    if [ -n "$(echo $LOC | egrep '(^|\s)/data')" ]; then
-        CHKPERM="/data/local/tmp/chkfileperm.sh"
-(
-cat <<'EOF'
-#!/system/xbin/sh
-FILE=$@
-if [ -e $FILE ]; then
-    ls -l $FILE | awk '{k=0;for(i=0;i<=8;i++)k+=((substr($1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf("%0o ",k);print}' | cut -d ' ' -f1
-fi
-EOF
-) > $OUT/.chkfileperm.sh
-        echo "Pushing file permissions checker to device"
-        adb push $OUT/.chkfileperm.sh $CHKPERM
-        adb shell chmod 755 $CHKPERM
-        rm -f $OUT/.chkfileperm.sh
-    fi
-
-    RELOUT=$(echo $OUT | sed "s#^${ANDROID_BUILD_TOP}/##")
-
-    stop_n_start=false
-    for TARGET in $(echo $LOC | tr " " "\n" | sed "s#.*${RELOUT}##" | sort | uniq); do
-        # Make sure file is in $OUT/system, $OUT/data, $OUT/odm, $OUT/oem, $OUT/product, $OUT/product_services or $OUT/vendor
-        case $TARGET in
-            /system/*|/data/*|/odm/*|/oem/*|/product/*|/product_services/*|/vendor/*)
-                # Get out file from target (i.e. /system/bin/adb)
-                FILE=$OUT$TARGET
-            ;;
-            *) continue ;;
-        esac
-
-        case $TARGET in
-            /data/*)
-                # fs_config only sets permissions and se labels for files pushed to /system
-                if [ -n "$CHKPERM" ]; then
-                    OLDPERM=$(adb shell $CHKPERM $TARGET)
-                    OLDPERM=$(echo $OLDPERM | tr -d '\r' | tr -d '\n')
-                    OLDOWN=$(adb shell ls -al $TARGET | awk '{print $2}')
-                    OLDGRP=$(adb shell ls -al $TARGET | awk '{print $3}')
-                fi
-                echo "Pushing: $TARGET"
-                adb push $FILE $TARGET
-                if [ -n "$OLDPERM" ]; then
-                    echo "Setting file permissions: $OLDPERM, $OLDOWN":"$OLDGRP"
-                    adb shell chown "$OLDOWN":"$OLDGRP" $TARGET
-                    adb shell chmod "$OLDPERM" $TARGET
-                else
-                    echo "$TARGET did not exist previously, you should set file permissions manually"
-                fi
-                adb shell restorecon "$TARGET"
-            ;;
-            /system/priv-app/SystemUI/SystemUI.apk|/system/framework/*)
-                # Only need to stop services once
-                if ! $stop_n_start; then
-                    adb shell stop
-                    stop_n_start=true
-                fi
-                echo "Pushing: $TARGET"
-                adb push $FILE $TARGET
-            ;;
-            *)
-                echo "Pushing: $TARGET"
-                adb push $FILE $TARGET
-            ;;
-        esac
-    done
-    if [ -n "$CHKPERM" ]; then
-        adb shell rm $CHKPERM
-    fi
-    if $stop_n_start; then
-        adb shell start
-    fi
-    rm -f $OUT/.log
-    return 0
-    else
-        echo "The connected device does not appear to be $LINEAGE_BUILD, run away!"
-    fi
-}
-
 function repopick() {
     T=$(gettop)
     $T/vendor/canned/build/tools/repopick.py $@
 }
-
 # check and set ccache path on envsetup
 if [ -z ${CCACHE_EXEC} ]; then
     ccache_path=$(which ccache)
@@ -816,6 +681,51 @@ if [ -z ${CCACHE_EXEC} ]; then
         echo "ccache found and CCACHE_EXEC has been set to : $ccache_path"
     else
         echo "ccache not found/installed!"
+    fi
+fi
+function push_update(){(
+    set -e
+    a=()
+    devices_dir=$(pwd)/official_devices
+    if [ ! -f "$(pwd)/changelog.txt" ]; then
+        echo "Create changelog.txt file in build directory"
+        echo "Aborting..."
+        return 0
+    fi
+    # Ask the maintainer for login details
+    read -p 'ODSN Username: ' uservar
+    read -p 'Zip name: ' zipvar
+    for s in $(echo $zipvar | tr "-" "\n")
+    do
+        a+=("$s")
+    done
+    target_device=${a[4]}
+    out_dir=$(pwd)/out/target/product/$target_device/
+    version=${a[1]}
+    size=$(stat -c%s "$out_dir$zipvar")
+    md5=$(md5sum "$out_dir$zipvar")
+    echo "Uploading build to ODSN"
+    scp $out_dir/$zipvar ${uservar}@storage.osdn.net:/storage/groups/r/re/canned/$target_device
+    echo "Generating json"
+    python3 $(pwd)/vendor/canned/build/tools/generatejson.py $target_device $zipvar $version $size $md5
+    if [ -d "$devices_dir" ]; then
+        rm -rf $devices_dir
+    fi
+    git clone https://github.com/CannedOS-Devices/official_devices.git $devices_dir
+    if [ -d "$devices_dir/$target_device" ]; then
+        mv $(pwd)/device.json $devices_dir/$target_device
+        mv $(pwd)/changelog.txt $devices_dir/$target_device
+    else
+        mkdir $devices_dir/$target_device
+        mv $(pwd)/device.json $devices_dir/$target_device
+        mv $(pwd)/changelog.txt $devices_dir/$target_device
+    fi
+    echo "Pushing to Official devices"
+    cd $devices_dir
+    git add $target_device && git commit -m "Update $target_device"
+    git push https://github.com/CannedOS-Devices/official_devices.git HEAD:11
+    rm -rf $devices_dir
+)}
 
 # Allow GCC 4.9
 export TEMPORARY_DISABLE_PATH_RESTRICTIONS=true
