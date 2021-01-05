@@ -41,8 +41,8 @@ except ImportError:
 
 DEBUG = False
 
-custom_local_manifest = ".repo/local_manifests/snippets/canned.xml"
-custom_default_revision =  os.getenv('ROOMSERVICE_DEFAULT_BRANCH', 'xr')
+custom_local_manifest = ".repo/manifests/snippets/canned.xml"
+custom_default_revision =  os.getenv('ROOMSERVICE_DEFAULT_BRANCH', 'ravioli')
 custom_dependencies = "canned.dependencies"
 org_manifest = "CannedOS-Devices"  # leave empty if org is provided in manifest
 org_display = "CannedOS-Devices"  # needed for displaying
@@ -50,7 +50,7 @@ org_display = "CannedOS-Devices"  # needed for displaying
 github_auth = None
 
 
-local_manifests = '.repo/local_manifests'
+local_manifests = '.repo/manifests'
 if not os.path.exists(local_manifests):
     os.makedirs(local_manifests)
 
