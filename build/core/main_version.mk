@@ -1,41 +1,52 @@
-# Build fingerprint
-BUILD_NUMBER_CUSTOM := $(shell date -u +%H%M)
-ifneq ($(filter OFFICIAL,$(CUSTOM_BUILD_TYPE)),)
-BUILD_SIGNATURE_KEYS := release-keys
+# Copyright (C) 2021 CannedOS Project 2021
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+ANDROID_VERSION := 11.0
+CANNED_FLAVOUR := RAVIOLI
+
+CANNED_BUILD_TYPE ?= UNOFFICIAL
+CANNED_BUILD_DATE := $(shell date +%Y%m%d-%H%M)
+TARGET_PRODUCT_SHORT := $(subst canned_,,$(CANNED_BUILD))
+
+# ZIP TYPE
+ifeq ($(WITH_GAPPS), true)
+CANNED_BUILD_VARIANT := GAPPS
+include vendor/google/gms/config.mk
 else
-BUILD_SIGNATURE_KEYS := test-keys
-endif
-BUILD_FINGERPRINT := $(PRODUCT_BRAND)/$(TARGET_DEVICE)/$(TARGET_DEVICE):$(PLATFORM_VERSION)/$(BUILD_ID)/$(BUILD_NUMBER_CUSTOM):$(TARGET_BUILD_VARIANT)/$(BUILD_SIGNATURE_KEYS)
-ADDITIONAL_BUILD_PROPERTIES += \
-    ro.build.fingerprint=$(BUILD_FINGERPRINT)
-
-# AOSP recovery flashing
-ifeq ($(TARGET_USES_AOSP_RECOVERY),true)
-ADDITIONAL_BUILD_PROPERTIES += \
-    persist.sys.recovery_update=true
+CANNED_BUILD_VARIANT := VANILLA
 endif
 
-# Branding
-CUSTOM_BUILD_TYPE ?= UNOFFICIAL
+# OFFICIAL_DEVICES
+ifeq ($(CANNED_BUILD_TYPE), OFFICIAL)
+   LIST = $(shell cat vendor/canned/canned.devices)
+   ifeq ($(filter $(CANNED_BUILD), $(LIST)), $(CANNED_BUILD))
+    IS_OFFICIAL=true
+      CANNED_BUILD_TYPE := OFFICIAL
 
-CUSTOM_DATE_YEAR := $(shell date -u +%Y)
-CUSTOM_DATE_MONTH := $(shell date -u +%m)
-CUSTOM_DATE_DAY := $(shell date -u +%d)
-CUSTOM_DATE_HOUR := $(shell date -u +%H)
-CUSTOM_DATE_MINUTE := $(shell date -u +%M)
-CUSTOM_BUILD_DATE_UTC := $(shell date -d '$(CUSTOM_DATE_YEAR)-$(CUSTOM_DATE_MONTH)-$(CUSTOM_DATE_DAY) $(CUSTOM_DATE_HOUR):$(CUSTOM_DATE_MINUTE) UTC' +%s)
-CUSTOM_BUILD_DATE := $(CUSTOM_DATE_YEAR)$(CUSTOM_DATE_MONTH)$(CUSTOM_DATE_DAY)-$(CUSTOM_DATE_HOUR)$(CUSTOM_DATE_MINUTE)
+endif
 
-CUSTOM_PLATFORM_VERSION := 11.0
+ifneq ($(IS_OFFICIAL), true)
+CANNED_BUILD_TYPE := UNOFFICIAL
+$(error Device is not official "$(CANNED_BUILD)")
+endif
+endif
 
-TARGET_PRODUCT_SHORT := $(subst aosp_,,$(CUSTOM_BUILD))
+# MAIN
+CANNED_VERSION := CannedOS-$(CANNED_FLAVOUR)-$(CANNED_BUILD)-$(CANNED_BUILD_DATE)-$(CANNED_BUILD_TYPE)-$(CANNED_BUILD_VARIANT)
 
-CUSTOM_VERSION := PixelExperience_$(CUSTOM_BUILD)-$(CUSTOM_PLATFORM_VERSION)-$(CUSTOM_BUILD_DATE)-BETA-$(CUSTOM_BUILD_TYPE)
-CUSTOM_VERSION_PROP := eleven
+CANNED_MOD_VERSION :=$(ANDROID_VERSION)-$(CANNED_VERSION)
 
-ADDITIONAL_BUILD_PROPERTIES += \
-    org.pixelexperience.version=$(CUSTOM_VERSION_PROP) \
-    org.pixelexperience.version.display=$(CUSTOM_VERSION) \
-    org.pixelexperience.build_date=$(CUSTOM_BUILD_DATE) \
-    org.pixelexperience.build_date_utc=$(CUSTOM_BUILD_DATE_UTC) \
-    org.pixelexperience.build_type=$(CUSTOM_BUILD_TYPE)
+CANNED_DISPLAY_VERSION := CannedOS-$(CANNED_VERSION)-$(CANNED_BUILD_TYPE)
+
+CANNED_FINGERPRINT := Canned_OS/$(CANNED_MOD_VERSION)/$(TARGET_PRODUCT_SHORT)/$(shell date -u +%H%M)

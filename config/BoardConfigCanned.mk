@@ -1,13 +1,13 @@
 # Safetynet
 TARGET_FORCE_BUILD_FINGERPRINT := google/crosshatch/crosshatch:11/RQ1A.210105.003/7005429:user/release-keys
 
-include vendor/aosp/config/BoardConfigKernel.mk
+include vendor/canned/config/BoardConfigKernel.mk
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
-include vendor/aosp/config/BoardConfigQcom.mk
+include vendor/canned/config/BoardConfigQcom.mk
 endif
 
-include vendor/aosp/config/BoardConfigSoong.mk
+include vendor/canned/config/BoardConfigSoong.mk
 
 # Namespace for fwk-detect
 TARGET_FWK_DETECT_PATH ?= hardware/qcom-caf/common

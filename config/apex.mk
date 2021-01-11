@@ -5,7 +5,7 @@ PRODUCT_PACKAGES += \
 
 # Enable Google Play system updates support
 PRODUCT_SOONG_NAMESPACES += \
-    vendor/aosp/apex
+    vendor/canned/apex
 
 # ModuleMetadata
 PRODUCT_PACKAGES += \

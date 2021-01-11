@@ -1,4 +1,4 @@
-PRODUCT_BRAND ?= PixelExperience
+PRODUCT_BRAND ?= CannedOS
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
 
@@ -32,16 +32,16 @@ endif
 
 # Some permissions
 PRODUCT_COPY_FILES += \
-    vendor/aosp/config/permissions/backup.xml:system/etc/sysconfig/backup.xml \
-    vendor/aosp/config/permissions/privapp-permissions-lineagehw.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/privapp-permissions-lineagehw.xml
+    vendor/canned/config/permissions/backup.xml:system/etc/sysconfig/backup.xml \
+    vendor/canned/config/permissions/privapp-permissions-lineagehw.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/privapp-permissions-lineagehw.xml
 
 # Copy all custom init rc files
-$(foreach f,$(wildcard vendor/aosp/prebuilt/common/etc/init/*.rc),\
+$(foreach f,$(wildcard vendor/canned/prebuilt/common/etc/init/*.rc),\
     $(eval PRODUCT_COPY_FILES += $(f):system/etc/init/$(notdir $f)))
 
 # Enable Android Beam on all targets
 PRODUCT_COPY_FILES += \
-    vendor/aosp/config/permissions/android.software.nfc.beam.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.software.nfc.beam.xml
+    vendor/canned/config/permissions/android.software.nfc.beam.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.software.nfc.beam.xml
 
 # Enable SIP+VoIP on all targets
 PRODUCT_COPY_FILES += \
@@ -57,7 +57,7 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 
 # Power whitelist
 PRODUCT_COPY_FILES += \
-    vendor/aosp/config/permissions/custom-power-whitelist.xml:system/etc/sysconfig/custom-power-whitelist.xml
+    vendor/canned/config/permissions/custom-power-whitelist.xml:system/etc/sysconfig/custom-power-whitelist.xml
 
 # Do not include art debug targets
 PRODUCT_ART_TARGET_INCLUDE_DEBUG_BUILD := false
@@ -91,12 +91,12 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 
 # Overlays
 PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += \
-    vendor/aosp/overlay \
-    vendor/aosp/overlay-pixel \
+    vendor/canned/overlay \
+    vendor/canned/overlay-pixel \
 
 DEVICE_PACKAGE_OVERLAYS += \
-    vendor/aosp/overlay/common \
-    vendor/aosp/overlay-pixel/common
+    vendor/canned/overlay/common \
+    vendor/canned/overlay-pixel/common
 
 # TouchGestures
 PRODUCT_PACKAGES += \
@@ -166,46 +166,23 @@ PRODUCT_PACKAGES += \
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.boot.vendor.overlay.theme=com.android.internal.systemui.navbar.gestural
 
-# Pixel customization
-TARGET_SUPPORTS_GOOGLE_RECORDER ?= true
-TARGET_INCLUDE_STOCK_ARCORE ?= true
-TARGET_INCLUDE_LIVE_WALLPAPERS ?= true
-ifeq ($(TARGET_INCLUDE_LIVE_WALLPAPERS),true)
+# Pixel CannedOS
 PRODUCT_PACKAGES += \
     PixelLiveWallpapersOverlay
-endif
-
-# Face Unlock
-#TARGET_FACE_UNLOCK_SUPPORTED ?= true
-#ifneq ($(TARGET_GAPPS_ARCH),arm64)
-#TARGET_FACE_UNLOCK_SUPPORTED := false
-#endif
-#ifeq ($(TARGET_FACE_UNLOCK_SUPPORTED),true)
-#PRODUCT_PACKAGES += \
-#    FaceUnlockService
-#PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
-#    ro.face.moto_unlock_service=$(TARGET_FACE_UNLOCK_SUPPORTED)
-#endif
 
 # Apex
-$(call inherit-product, vendor/aosp/config/apex.mk)
+$(call inherit-product, vendor/canned/config/apex.mk)
 
 # Audio
-$(call inherit-product, vendor/aosp/config/audio.mk)
+$(call inherit-product, vendor/canned/config/audio.mk)
 
 # Bootanimation
-$(call inherit-product, vendor/aosp/config/bootanimation.mk)
+$(call inherit-product, vendor/canned/config/bootanimation.mk)
 
 # Fonts
-$(call inherit-product, vendor/aosp/config/fonts.mk)
-
-# GApps
-$(call inherit-product, vendor/gapps/config.mk)
-
-# OTA
-$(call inherit-product, vendor/aosp/config/ota.mk)
+$(call inherit-product, vendor/canned/config/fonts.mk)
 
 # RRO Overlays
-$(call inherit-product, vendor/aosp/config/rro_overlays.mk)
+$(call inherit-product, vendor/canned/config/rro_overlays.mk)
 
 -include $(WORKSPACE)/build_env/image-auto-bits.mk

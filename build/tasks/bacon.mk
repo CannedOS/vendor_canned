@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-CUSTOM_TARGET_PACKAGE := $(PRODUCT_OUT)/$(CUSTOM_VERSION).zip
+CANNED_TARGET_PACKAGE := $(PRODUCT_OUT)/$(CANNED_VERSION).zip
 
 MD5 := prebuilts/build-tools/path/$(HOST_PREBUILT_TAG)/md5sum
 
 .PHONY: bacon
 bacon: $(INTERNAL_OTA_PACKAGE_TARGET)
-	$(hide) mv $(INTERNAL_OTA_PACKAGE_TARGET) $(CUSTOM_TARGET_PACKAGE)
-	$(hide) $(MD5) $(CUSTOM_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(CUSTOM_TARGET_PACKAGE).md5sum
-	@echo "Package Complete: $(CUSTOM_TARGET_PACKAGE)" >&2
+	$(hide) mv $(INTERNAL_OTA_PACKAGE_TARGET) $(CANNED_TARGET_PACKAGE)
+	$(hide) $(MD5) $(CANNED_TARGET_PACKAGE) | sed "s|$(PRODUCT_OUT)/||" > $(CANNED_TARGET_PACKAGE).md5sum
+	@echo "Package Complete: $(CANNED_TARGET_PACKAGE)" >&2
