@@ -1,9 +1,9 @@
-# Inherit full common Lineage stuff
-$(call inherit-product, vendor/lineage/config/common_full.mk)
+# Inherit full common canned stuff
+$(call inherit-product, vendor/canned/config/common_full.mk)
 
 # Required packages
 PRODUCT_PACKAGES += \
     LatinIME
 
-# Include Lineage LatinIME dictionaries
-PRODUCT_PACKAGE_OVERLAYS += vendor/lineage/overlay/dictionaries
+# Include canned LatinIME dictionaries
+PRODUCT_PACKAGE_OVERLAYS += vendor/canned/overlay/dictionaries

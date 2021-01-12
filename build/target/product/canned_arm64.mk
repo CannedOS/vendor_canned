@@ -1,5 +1,4 @@
-#
-# Copyright (C) 2018-2019 The CannedOS Project
+# Copyright (C) 2018-2020 The LineageOS Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,16 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/canned_arm.mk \
-    $(LOCAL_DIR)/canned_arm64.mk \
-    $(LOCAL_DIR)/canned_x86.mk \
-    $(LOCAL_DIR)/canned_x86_64.mk
+$(call inherit-product, build/target/product/aosp_arm64.mk)
 
-COMMON_LUNCH_CHOICES := \
-    canned_arm-userdebug \
-    canned_arm64-userdebug \
-    canned_x86-userdebug \
-    canned_x86_64-userdebug
+include vendor/canned/build/target/product/canned_generic_target.mk
+
+TARGET_NO_KERNEL_OVERRIDE := true
+
+PRODUCT_NAME := canned_arm64
