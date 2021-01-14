@@ -17,6 +17,8 @@ PRODUCT_PACKAGES += \
 
 # Customizations
 PRODUCT_PACKAGES += \
+    IconShapeHeartOverlay \
+    IconShapeMallowOverlay \
     IconShapeSquareOverlay \
     NavigationBarMode2ButtonOverlay
 
