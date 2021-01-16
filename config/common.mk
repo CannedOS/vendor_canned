@@ -79,6 +79,10 @@ include vendor/canned/bootanimation/bootanimation.mk
 # Versioning
 include vendor/canned/config/version.mk
 
+ifeq ($(WITH_GMS),true)
+$(call inherit-product, vendor/google/gms/gms-vendor.mk)
+endif
+
 # Do not include art debug targets
 PRODUCT_ART_TARGET_INCLUDE_DEBUG_BUILD := false
 
